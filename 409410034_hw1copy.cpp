@@ -11,29 +11,29 @@ using namespace std;
 class Link {
 public:
     int linkId;
-    int nodeA;
-    int nodeB;
+    unsigned int nodeA;
+    unsigned int nodeB;
     int oldWeight;
     int newWeight;
 };
 
 class Neighbor {
 public:
-    int id;
+    unsigned int id;
     int oldWeight;
     int newWeight;
 };
 
 class Node {
 public:
-    int id;
+    unsigned int id;
     vector<Neighbor>neighbors;
 };
 
 class pqLink {
 public:
-    int from;
-    int to;
+    unsigned int from;
+    unsigned int to;
     int oldWeight;
     int newWeight;
 };
@@ -52,7 +52,7 @@ public:
         return b.newWeight < a.newWeight;
     }
 };
-int dijkstra(map<int, int>& table, int dest, vector<Node>& nodes, int nodeCnt, bool newWeight, map< int, int>& cost) {
+int dijkstra(map<unsigned int, unsigned int>& table, unsigned int dest, vector<Node>& nodes, int nodeCnt, bool newWeight, map<unsigned int, unsigned int>& cost) {
     priority_queue<pqLink, vector<pqLink>, CompareOld> oldPq;
     priority_queue<pqLink, vector<pqLink>, CompareNew> newPq;
     vector<bool> selected; // node selected
@@ -104,16 +104,16 @@ int dijkstra(map<int, int>& table, int dest, vector<Node>& nodes, int nodeCnt, b
 int main(int argc, char** argv) {
     vector<Link> links; // save input
     vector<Node> nodes; // nodes list and their neighbor
-    map<int, int>destATable; // route table
-    map< int, int>destBTable; // route table
-    map< int, int>destANewTable; // route table
-    map< int, int>destBNewTable; // route table
-    map< int, int>destACost; // route cost
-    map< int, int>destBCost; // route cost
-    map< int, int>destANewCost; // route cost
-    map< int, int>destBNewCost; // route cost
+    map<unsigned int, unsigned int>destATable; // route table
+    map<unsigned int, unsigned int>destBTable; // route table
+    map<unsigned int, unsigned int>destANewTable; // route table
+    map<unsigned int, unsigned int>destBNewTable; // route table
+    map<unsigned int, unsigned int>destACost; // route cost
+    map<unsigned int, unsigned int>destBCost; // route cost
+    map<unsigned int, unsigned int>destANewCost; // route cost
+    map<unsigned int, unsigned int>destBNewCost; // route cost
     int nodeCnt, destCnt, linkCnt;
-    int destA, destB;
+    unsigned int destA, destB;
 
     // ifstream in("in.txt");
     // streambuf* oldBuf = cin.rdbuf(in.rdbuf());
@@ -136,14 +136,14 @@ int main(int argc, char** argv) {
     dijkstra(destBTable, destB, nodes, nodeCnt, false, destBCost);
     dijkstra(destANewTable, destA, nodes, nodeCnt, true, destANewCost);
     dijkstra(destBNewTable, destB, nodes, nodeCnt, true, destBNewCost);
-    for (int i = 0; i < nodeCnt; i++) {
+    for (unsigned int i = 0; i < nodeCnt; i++) {
         cout << i << endl;
         if (destA != i)
             cout << destA << " " << destATable[i] << endl;
         if (destB != i)
             cout << destB << " " << destBTable[i] << endl;
     }
-    for (int i = 0; i < nodeCnt; i++) {
+    for (unsigned int i = 0; i < nodeCnt; i++) {
         if (destANewTable[i] != destATable[i] || destBNewTable[i] != destBTable[i]) {
             cout << i << endl;
             if (destANewTable[i] != destATable[i]) {
