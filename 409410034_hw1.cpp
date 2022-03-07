@@ -11,15 +11,15 @@ using namespace std;
 class Link {
 public:
     int linkId;
-    int nodeA;
-    int nodeB;
+    unsigned int nodeA;
+    unsigned int nodeB;
     int oldWeight;
     int newWeight;
 };
 
 class Neighbor {
 public:
-    int id;
+    unsigned int id;
     int oldWeight;
     int newWeight;
 };
@@ -32,8 +32,8 @@ public:
 
 class pqLink {
 public:
-    int from;
-    int to;
+    unsigned int from;
+    unsigned int to;
     int oldWeight;
     int newWeight;
 };
@@ -41,16 +41,18 @@ public:
 class CompareOld {
 public:
     bool operator()(const pqLink& a, const pqLink& b) {
+        if (a.oldWeight == b.oldWeight) return b.to < a.to;
         return b.oldWeight < a.oldWeight;
     }
 };
 class CompareNew {
 public:
     bool operator()(const pqLink& a, const pqLink& b) {
+        if (a.newWeight == b.newWeight) return b.to < a.to;
         return b.newWeight < a.newWeight;
     }
 };
-int dijkstra(map<unsigned int, unsigned int>& table, int dest, vector<Node>& nodes, int nodeCnt, bool newWeight, map<unsigned int, unsigned int>& cost) {
+int dijkstra(map<unsigned int, unsigned int>& table, unsigned int dest, vector<Node>& nodes, int nodeCnt, bool newWeight, map<unsigned int, unsigned int>& cost) {
     priority_queue<pqLink, vector<pqLink>, CompareOld> oldPq;
     priority_queue<pqLink, vector<pqLink>, CompareNew> newPq;
     vector<bool> selected; // node selected
@@ -63,12 +65,12 @@ int dijkstra(map<unsigned int, unsigned int>& table, int dest, vector<Node>& nod
         }
         while (!oldPq.empty()) {
             current = oldPq.top();
-            if (!selected[current.to] || (selected[current.to] && current.oldWeight < cost[current.to])) {
-                table[current.to] = current.from;
-                cost[current.to] = current.oldWeight;
-            }
-            selected[current.to] = true;
             oldPq.pop();
+            if (selected[current.to])continue;
+            table[current.to] = current.from;
+            cost[current.to] = current.oldWeight;
+
+            selected[current.to] = true;
             for (auto i : nodes[current.to].neighbors) {
                 if (!selected[i.id])
                     oldPq.push({ current.to, i.id, i.oldWeight + (int)cost[current.to] , i.newWeight });
@@ -83,12 +85,12 @@ int dijkstra(map<unsigned int, unsigned int>& table, int dest, vector<Node>& nod
         }
         while (!newPq.empty()) {
             current = newPq.top();
-            if (!selected[current.to] || (selected[current.to] && current.oldWeight < cost[current.to])) {
-                table[current.to] = current.from;
-                cost[current.to] = current.newWeight;
-            }
-            selected[current.to] = true;
             newPq.pop();
+            if (selected[current.to]) continue;
+            table[current.to] = current.from;
+            cost[current.to] = current.newWeight;
+
+            selected[current.to] = true;
             for (auto i : nodes[current.to].neighbors) {
                 if (!selected[i.id])
                     newPq.push({ current.to, i.id, i.oldWeight  , i.newWeight + (int)cost[current.to] });
@@ -111,7 +113,7 @@ int main(int argc, char** argv) {
     map<unsigned int, unsigned int>destANewCost; // route cost
     map<unsigned int, unsigned int>destBNewCost; // route cost
     int nodeCnt, destCnt, linkCnt;
-    int destA, destB;
+    unsigned int destA, destB;
 
     // ifstream in("in.txt");
     // streambuf* oldBuf = cin.rdbuf(in.rdbuf());
@@ -134,14 +136,14 @@ int main(int argc, char** argv) {
     dijkstra(destBTable, destB, nodes, nodeCnt, false, destBCost);
     dijkstra(destANewTable, destA, nodes, nodeCnt, true, destANewCost);
     dijkstra(destBNewTable, destB, nodes, nodeCnt, true, destBNewCost);
-    for (int i = 0; i < nodeCnt; i++) {
+    for (unsigned int i = 0; i < nodeCnt; i++) {
         cout << i << endl;
         if (destA != i)
             cout << destA << " " << destATable[i] << endl;
         if (destB != i)
             cout << destB << " " << destBTable[i] << endl;
     }
-    for (int i = 0; i < nodeCnt; i++) {
+    for (unsigned int i = 0; i < nodeCnt; i++) {
         if (destANewTable[i] != destATable[i] || destBNewTable[i] != destBTable[i]) {
             cout << i << endl;
             if (destANewTable[i] != destATable[i]) {
