@@ -52,7 +52,8 @@ public:
         return b.newWeight < a.newWeight;
     }
 };
-int dijkstra(map<unsigned int, unsigned int>& table, unsigned int dest, vector<Node>& nodes, int nodeCnt, bool newWeight, map<unsigned int, unsigned int>& cost) {
+int dijkstra(map<unsigned int, unsigned int>& table, unsigned int dest, map<unsigned int, Node>& nodes, int nodeCnt, bool newWeight) {
+    map<unsigned int, unsigned int> cost;
     priority_queue<pqLink, vector<pqLink>, CompareOld> oldPq;
     priority_queue<pqLink, vector<pqLink>, CompareNew> newPq;
     vector<bool> selected; // node selected
@@ -103,60 +104,56 @@ int dijkstra(map<unsigned int, unsigned int>& table, unsigned int dest, vector<N
 
 int main(int argc, char** argv) {
     vector<Link> links; // save input
-    vector<Node> nodes; // nodes list and their neighbor
-    map<unsigned int, unsigned int>destATable; // route table
-    map<unsigned int, unsigned int>destBTable; // route table
-    map<unsigned int, unsigned int>destANewTable; // route table
-    map<unsigned int, unsigned int>destBNewTable; // route table
-    map<unsigned int, unsigned int>destACost; // route cost
-    map<unsigned int, unsigned int>destBCost; // route cost
-    map<unsigned int, unsigned int>destANewCost; // route cost
-    map<unsigned int, unsigned int>destBNewCost; // route cost
-    int nodeCnt, destCnt, linkCnt;
-    unsigned int destA, destB;
+    map<unsigned int, Node> nodes; // nodes list and their neighbor
+    vector<map<unsigned int, unsigned int>>tableList;
+    vector<map<unsigned int, unsigned int>>newTableList;
+    unsigned int nodeCnt, destCnt, linkCnt;
+    vector<unsigned int> dests;
 
-    // ifstream in("in.txt");
-    // streambuf* oldBuf = cin.rdbuf(in.rdbuf());
 
     cin >> nodeCnt >> destCnt >> linkCnt;
-    cin >> destA >> destB;
-    for (int i = 0; i < linkCnt; i++) {
+    for (unsigned int i = 0; i < destCnt; i++) {
+        unsigned int dest;
+        cin >> dest;
+        dests.push_back(dest);
+    }
+    for (unsigned int i = 0; i < linkCnt; i++) {
         Link link;
         cin >> link.linkId >> link.nodeA >> link.nodeB >> link.oldWeight >> link.newWeight;
         links.push_back(link);
     }
-    nodes.resize(nodeCnt);
     for (auto i : links) {
-        nodes[i.nodeA].id = i.nodeA;
         nodes[i.nodeA].neighbors.push_back({ i.nodeB, i.oldWeight, i.newWeight });
-        nodes[i.nodeB].id = i.nodeB;
         nodes[i.nodeB].neighbors.push_back({ i.nodeA, i.oldWeight, i.newWeight });
     }
-    dijkstra(destATable, destA, nodes, nodeCnt, false, destACost);
-    dijkstra(destBTable, destB, nodes, nodeCnt, false, destBCost);
-    dijkstra(destANewTable, destA, nodes, nodeCnt, true, destANewCost);
-    dijkstra(destBNewTable, destB, nodes, nodeCnt, true, destBNewCost);
-    for (unsigned int i = 0; i < nodeCnt; i++) {
-        cout << i << endl;
-        if (destA != i)
-            cout << destA << " " << destATable[i] << endl;
-        if (destB != i)
-            cout << destB << " " << destBTable[i] << endl;
+    tableList.resize(destCnt);
+    newTableList.resize(destCnt);
+    for (unsigned int i = 0; i < destCnt; i++) {
+        dijkstra(tableList[i], dests[i], nodes, nodeCnt, false);
+    }
+    for (unsigned int i = 0; i < destCnt; i++) {
+        dijkstra(newTableList[i], dests[i], nodes, nodeCnt, true);
     }
     for (unsigned int i = 0; i < nodeCnt; i++) {
-        if (destANewTable[i] != destATable[i] || destBNewTable[i] != destBTable[i]) {
-            cout << i << endl;
-            if (destANewTable[i] != destATable[i]) {
-                cout << destA << " " << destANewTable[i] << endl;
-            }
-            if (destBNewTable[i] != destBTable[i]) {
-                cout << destB << " " << destBNewTable[i] << endl;
+        cout << i << endl;
+        for (unsigned int j = 0; j < destCnt; j++) {
+            if (dests[j] != i)
+                cout << dests[j] << " " << tableList[j][i] << endl;
+        }
+    }
+    for (unsigned int i = 0; i < nodeCnt; i++) {
+        int first = 1;
+        for (unsigned int j = 0; j < destCnt; j++) {
+            if (tableList[j][i] != newTableList[j][i]) {
+                if (first == 1) {
+                    cout << i << endl;
+                    first = 0;
+                }
+                cout << dests[j] << " " << newTableList[j][i] << endl;
             }
         }
     }
 
 
-    // cin.rdbuf(oldBuf);
-    // in.close();
     return 0;
 }
