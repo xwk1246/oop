@@ -41,14 +41,14 @@ public:
 class CompareOld {
 public:
     bool operator()(const pqLink& a, const pqLink& b) {
-        if (a.oldWeight == b.oldWeight) return b.from > a.from;
+        if (a.oldWeight == b.oldWeight) return b.to < a.to;
         return b.oldWeight < a.oldWeight;
     }
 };
 class CompareNew {
 public:
     bool operator()(const pqLink& a, const pqLink& b) {
-        if (a.newWeight == b.newWeight) return b.from > a.from;
+        if (a.newWeight == b.newWeight) return b.to < a.to;
         return b.newWeight < a.newWeight;
     }
 };
